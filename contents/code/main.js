@@ -1,66 +1,77 @@
-
-
-var csd = new CsdManager();
 var config = new Config();
 
+function Config() {
+    this._allowedScreen = [ 0 ];
+    this._csdClients = [ ];
+    this._evalClients = [ ];
+    this._excludedClients = [ "google-chrome" ];
+}
+
+workspace.clientRemoved.connect(function(client) {
+    config.unregister(client);
+    config.rem(client);
+});
+
 workspace.clientMaximizeSet.connect(function(client, horizontalMaximized, verticalMaximized) {
-    if (config.allowed(client)) {
-        if (horizontalMaximized && verticalMaximized) {
-            csd.eval(client);
-            client.noBorder = true;
-        } else {
-            client.noBorder = csd.isCsd(client);
+    if (horizontalMaximized && verticalMaximized) {
+        if (!config.isEval(client) && !config.isCSD(client) && !config.isExcluded(client)) {
+            if (config.screenAllowed(client))
+                client.noBorder = true;
         }
+    } else {
+        if (!config.isEval(client) && !config.isCSD(client) && !config.isExcluded(client))
+            client.noBorder = false;
     }
 });
 
 workspace.clientAdded.connect(function(client) {
-    if (config.allowed(client)) {
-        var area = workspace.clientArea(KWin.MaximizeArea, client);
-        var isMaximized = client.width >= area.width && client.height >= area.height;
-        
-        csd.eval(client);
-        client.noBorder = client.noBorder || isMaximized;
+    var area = workspace.clientArea(KWin.MaximizeArea, client);
+    if (client.width >= area.width && client.height >= area.height) 
+        config.add(client);            
+    else {
+        if (config.isCSD(client))
+            config.register(client);
     }
 });
 
-function CsdManager() {
-    this._csdClients = [];
-}
-
-CsdManager.prototype.eval = function(client) {
-    if (client.noBorder) {
-        this._registCsd(client);
-    } else {
-        this._unregistCsd(client);
-    }
+Config.prototype.screenAllowed = function(client) {
+   return (this._allowedScreen.indexOf(client.screen) >= 0);
 };
-    
-CsdManager.prototype.isCsd = function (client) {
-    if (workspace.activeScreen == 0 ) return true;
-    return this._csdClients.indexOf(client.resourceClass.toString()) >= 0;
-}
 
-CsdManager.prototype._unregistCsd = function(client) {
-    const index = this._csdClients.indexOf(client.resourceClass.toString());
-    if (index >= 0) {
-        this._csdClients.splice(index, 1);
-    }
-}
+Config.prototype.register = function(client) {
+    if (this._csdClients.indexOf(client.windowId.toString()) < 0)
+        this._csdClients.push(client.windowId.toString());
+};
+Config.prototype.unregister = function(client) {
+    var winIdIndex = this._csdClients.indexOf(client.windowId.toString());
+    if (winIdIndex >= 0)
+        this._csdClients.splice(winIdIndex, 1);
+};
 
-CsdManager.prototype._registCsd = function(client) {
-    const index = this._csdClients.indexOf(client.resourceClass.toString());
-    if (index < 0) {
-        this._csdClients.push(client.resourceClass.toString());
-    }
-}
+Config.prototype.add = function(client) {
+    if (this._csdClients.indexOf(client.windowId.toString()) < 0)
+        if (!config.isEval(client))
+            this._evalClients.push(client.windowId.toString());
+};
+Config.prototype.rem = function(client) {
+    var winIdIndex = this._evalClients.indexOf(client.windowId.toString());
+    if (winIdIndex >= 0)
+        this._evalClients.splice(winIdIndex, 1);
+};
 
-function Config() {
-    this._bannedClients = [
-        "yakuake"
-    ]
-}
+Config.prototype.isEval = function(client) {
+    return (this._evalClients.indexOf(client.windowId.toString()) >= 0);
+};
 
-Config.prototype.allowed = function(client) {
-    return this._bannedClients.indexOf(client.resourceClass.toString()) < 0;
-}
+Config.prototype.isExcluded = function(client) {
+    return (this._excludedClients.indexOf(client.resourceClass.toString()) >= 0);
+};
+
+Config.prototype.isCSD = function(client) {
+    if (this._csdClients.indexOf(client.windowId.toString()) >= 0) return true;
+    var fSize = client.frameGeometry;
+    var bSize = client.bufferGeometry;
+    if (bSize.width == fSize.width && bSize.height == fSize.height) return false;
+    return true;
+};
+

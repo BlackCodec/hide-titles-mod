@@ -9,11 +9,11 @@ build: clean
 	@zip hide-titles-mod.kwinscript -r contents LICENSE metadata.desktop
 
 uninstall:
-	@echo "Removing hide-titles script..."
-	@-plasmapkg2 -t kwinscript -r hide-titles-mod.kwinscript
+	@echo "Removing hide-titles-mod script..."
+	@plasmapkg2 -t kwinscript -r hide-titles-mod
 
-install: uninstall build
-	@echo "Installing hide-titles..."
+install: clean build
+	@echo "Installing hide-titles-mod..."
 	@plasmapkg2 -t kwinscript -i hide-titles-mod.kwinscript
 	@rm -f hide-titles-mod.kwinscript
 

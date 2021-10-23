@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Hide Titles Mod
-Comment=Based on https://github.com/bahamondev/hide-titles v 1.0.5 - Add support for multiscreen.
+Comment=Hide window titles and border for maximized windows. Support sreen exclusion list and client exclusion list.
 Icon=preferences-system-windows-script-test
 Type=Service
 
@@ -10,8 +10,8 @@ X-Plasma-MainScript=code/main.js
 X-KDE-ServiceTypes=KWin/Script
 
 X-KDE-PluginInfo-Author=Black Codec
-X-KDE-PluginInfo-Email=orso.f.regna@gmail.com
+X-KDE-PluginInfo-Email=f.dellorso@gmail.com
 X-KDE-PluginInfo-Name=hide-titles-mod
-X-KDE-PluginInfo-Version=1.0.1
+X-KDE-PluginInfo-Version=1.0.2
 X-KDE-PluginInfo-Website=https://github.com/BlackCodec/hide-titles-mod
 X-KDE-PluginInfo-License=GPLv3
