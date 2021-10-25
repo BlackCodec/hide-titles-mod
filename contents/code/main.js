@@ -19,8 +19,17 @@ workspace.clientMaximizeSet.connect(function(client, horizontalMaximized, vertic
                 client.noBorder = true;
         }
     } else {
-        if (!config.isEval(client) && !config.isCSD(client) && !config.isExcluded(client))
-            client.noBorder = false;
+        if (!config.isExcluded(client)) {
+            if (!config.isEval(client)) {
+                if (!config.isCSD(client))
+                    client.noBorder = false;
+            } else {
+                config.unregister(client);
+                config.rem(client);
+                if (config.isCSD(client))
+                    config.register(client);
+            }
+        }
     }
 });
 

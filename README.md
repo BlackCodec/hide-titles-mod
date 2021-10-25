@@ -5,6 +5,7 @@ This scipt has support for multiple screen, csd and exclusion list.
 
 # Release
 
+Version: 1.0.3 - Add re-evaluation for windows that starts maximized.
 Version: 1.0.2 - Rewrite from zero.
 Version: 1.0.1 - Modified Hide titles script from [@bahamondev](https://github.com/bahamondev/hide-titles).
 
